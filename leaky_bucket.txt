@@ -1,0 +1,39 @@
+import time
+
+class LeakyBucket:
+    def __init__(self, capacity, leak_rate):
+        self.capacity = capacity
+        self.leak_rate = leak_rate
+        self.bucket = 0
+        self.last_time = time.time()
+
+    def _leak(self):
+        current_time = time.time()
+        elapsed_time = current_time - self.last_time
+        leaked_packets = elapsed_time * self.leak_rate
+        self.bucket = max(0, self.bucket - leaked_packets)
+        self.last_time = current_time
+
+    def add_packet(self, packet_size):
+        self._leak()
+        if self.bucket + packet_size <= self.capacity:
+            self.bucket += packet_size
+            return True
+        else:
+            return False
+
+def main():
+    bucket_capacity = 7
+    leak_rate = 0
+    bucket = LeakyBucket(bucket_capacity, leak_rate)
+
+    packets = [3, 4, 2, 1, 6]
+    for packet_size in packets:
+        if bucket.add_packet(packet_size):
+            print(f"Packet of size {packet_size} added successfully.")
+        else:
+            print(f"Packet of size {packet_size} dropped due to overflow.")
+        time.sleep(1)
+
+if __name__ == '__main__':
+    main()
